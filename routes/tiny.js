@@ -14,11 +14,12 @@ router.post('', async (req, res) => {
         const longURL = req.body.longURL;
 
         if(!req.body.longURL) {
-            return res.status(400).send('No long URL was found in request body');
+            return res.status(400).send('No long URL was found');
         }
         if(!validUrl.is_uri(longURL)) {
             return res.status(400).send('Long URL passed is not valid');
         }
+
         /*if url has been stored in DB return the object*/
         const url = await Tiny.findOne({longURL: longURL});
         if(url) return res.status(200).json(url);
