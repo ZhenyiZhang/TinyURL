@@ -1,19 +1,23 @@
-/* server main file */
 const express = require('express');
 const path = require('path');
-const bodyParser = require('body-parser');
-const app = express();
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 const mongoose = require('mongoose');
-
-/*constants*/
-const apiBase = '/api';
 const PORT = 5000;
+const cors = require('cors');
+const bodyParser = require('body-parser');
+
+const app = express();
+
 
 /*set up*/
-const cors = require('cors');
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 /*import environment variables */
@@ -40,6 +44,7 @@ DB.on('error', console.error.bind(console, 'MongoDB connection error:'));
 const indexRoute = require('./routes/index');
 const tinyRoute = require('./routes/tiny');
 
+const apiBase = '/api';
 /* set up routes */
 app.use('', indexRoute);
 app.use(apiBase + '/tiny', tinyRoute);
