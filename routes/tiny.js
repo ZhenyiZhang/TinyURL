@@ -10,7 +10,7 @@ require('dotenv').config({path: '../process.env'});
 const Tiny = require('../model/tiny');
 
 /* post long url, create short url and store in DB */
-router.post('', async (req, res) => {
+router.post('', async(req, res) => {
         const longURL = req.body.longURL;
 
         if(!req.body.longURL) {
@@ -49,5 +49,36 @@ router.post('', async (req, res) => {
             });
     }
 );
+
+router.post('/custom', async(req, res) => {
+    const longURL = req.body.longURL;
+    const customCode = req.body.customCode;
+    if(!req.body.longURL) {
+        return res.status(400).send('No long URL was found');
+    }
+    if(!validUrl.is_uri(longURL)) {
+        return res.status(400).send('Long URL passed is not valid');
+    }
+
+    /*if url has been stored in DB return the object*/
+    const url = await Tiny.findOne({URLCode: customCode});
+    if(url) return res.status(400).send('The custom code has been used');
+
+    const newTiny = await new Tiny({
+        URLCode: customCode,
+        longURL: longURL,
+        shortURL: process.env.SERVER_URL + '/' + customCode,
+        date: Date.now()
+    });
+
+    /*Store in database*/
+    newTiny.save()
+        .then(data => {
+            res.status(200).json(data);
+        })
+        .catch(err => {
+            res.status(500).send(err);
+        });
+});
 
 module.exports = router;
